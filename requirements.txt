@@ -1,2 +1,5 @@
-pip3 install lxml
-pip install markdown
+bs4
+lxml
+matplotlib
+numpy
+pandas
