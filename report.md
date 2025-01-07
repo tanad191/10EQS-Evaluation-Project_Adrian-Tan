@@ -1,10 +1,10 @@
 # Overview
 
-This study serves as a comparison between pricing data obtained from our local coffee shop and average pricing data for restaurant-sold coffee in the US. The business insight to be gleaned from this therefore concerns how much the earnings made per year by the shop deviates from the nationwide average per year, which can be used to determine if prices are too high or too low compared to this average as a factor into critical business decisions.
+This study serves as a comparison between pricing data obtained from our local coffee shop and average pricing data for restaurant-sold coffee in the U.S.. The business insight to be gleaned from this therefore concerns how much the earnings made per year by the shop deviates from the nationwide average per year, which can be used to determine if prices are too high or too low compared to this average as a factor into critical business decisions.
 
 # Data quality issues and wrangling
 
-The products.csv file used for this study is stored in the /data directory of this project, and was read into the Python script using Pandas' read_csv() function. 
+The products.csv file used for this study is stored in the /data directory of this project, and was read into the Python script and stored via Pandas, using its read_csv() function to convert it into a DataFrame object. 
 
 Wrangling the data involved reformatting it via the following steps:
 
@@ -16,7 +16,7 @@ Wrangling the data involved reformatting it via the following steps:
 
 - Refine restock_date: Convert to datetime and remove any rows with a NaN value.
 
-- Refine category: This depends on product_name. Check if product_name contains certain words, then replace the category. The category is set to 'coffee' for words such as 'coffee', 'bean', and 'brew', and to 'tea' for words such as 'tea', 'matcha', and 'chai'.
+- Refine category: This depends on product_name. Check if product_name contains certain words, then replace the category. The category is set to "coffee" for words such as "coffee", "bean", and "brew", and to "tea" for words such as "tea", "matcha", and "chai".
 
 # Data summary
 
@@ -38,20 +38,22 @@ The processed data post-wrangling is shown:
 | Instant Coffee (8oz) | $11.99 | Coffee | 25.0 | 20.0 | 2024-11-19 | $239.80 | 10.0 |
 | Rooibos Tea (40 bags) | $6.99 | Tea | 30.0 | 20.0 | 2024-11-08 | $139.80 | 4.0 |
 | cold brew concentrate | $13.99 | Coffee | 19.0 | 15.0 | 2024-11-20 | $209.85 | 15.0 |
+
 The different categories of beverage and the number of products sold under each are as follows:
 
-| Category | Number of Products |
-| ----------: | ----------: |
-| Coffee | 5 |
-| Tea | 7 |
-| Beverages | 2 |
+| Category | Number of Products | Cumulative Price (U.S.D.) Per Pound |
+| ----------: | ----------: | ----------: |
+| Coffee | 5 | $0.87 |
+| Tea | 7 | $1.86 |
+| Beverages | 2 | $0.52 |
+
 # External data integration
 
-Our external source is in2013dollars.com's free dataset prices of <i>beverage materials including coffee and tea</i> from 1997 to 2024. This will allow us to obtain average annually coffee price in USD per pound. We will select data for the most recent year, in this case 2024 (the most recent full year as of this study).
+Our external source is in2013dollars.com, and specifically their free dataset of national average prices across all U.S. cities for <i>beverage materials including coffee and tea</i> from 1997 to 2024. This will allow us to obtain the average annual price in U.S.D. for beverages overall. The site is also one of the few such databases that can be freely webscraped and since it cites the U.S. Bureau of Labor Statistics as the source for its data, it can be assumed that said data is reasonably accurate. We will select data for the most recent year, in this case 2024 (the most recent full year as of this study).
 
-Webscraping was done with BeautifulSoup, which enabled extraction of the HTML table and refinement of the external data to remove HTML formatting and preserve the numerical values for the Year, USD Value, and Inflation Rate.
+Webscraping was done with BeautifulSoup, which enabled extraction of the HTML table and refinement of the external data to remove HTML formatting and preserve the numerical values for the Year, U.S.D. Value, and Inflation Rate.
 
-| Year | USD Value | Inflation Rate |
+| Year | U.S.D. Value | Inflation Rate |
 | ----: | ----------: | ----------: |
 | 1997 | $20.00 | 0.00% |
 | 1998 | $19.73 | -1.36% |
@@ -83,7 +85,7 @@ Webscraping was done with BeautifulSoup, which enabled extraction of the HTML ta
 | 2024 | $28.48 | 0.39% |
 
 
-Source URL: https://www.in2013dollars.com/inflation/coffee-prices-by-year-and-adjust-for-inflation/
+Source URL: https://www.in2013dollars.com/Beverage-materials-including-coffee-and-tea/price-inflation
 
 # Business insights
 
@@ -97,17 +99,37 @@ To obtain the pound-weight for each item, the numerical quantity per unit is ext
 
 Should quantity per unit be present in the product name, it will be converted into pounds per unit; the program checks what unit the item is sold in, and if the amount of an item per package is in pounds then that amount will be used in subsequent calculations as-is. If the item is sold in ounces, the number of ounces per package is divided by 16 to obtain the pounds per package. For tea bags, a pound of tea leaves is assumed to be equivalent to 200 bags, so the amount of bags is divided by 200 to obtain the pound weight. Once the pound-weights per unit for all items are obtained, we multiply the price for each item by its restock threshold to get price per monthly restock, and the pound-weight for each item by its restock threshold to get quantity per monthly restock.
 
-We then extract the sum of all prices per monthly restock for items in the "coffee" or "tea" categories and multiply this by twelve months to get the total supply price per year for all coffee and tea items put together. Thus, we have:
+We then extract the sum of all prices per monthly restock for all items and multiply this by twelve months to get the total supply price per year for all beverage items put together. Thus, we have:
 
 Local beverage earnings per pound: <b>$17.91</b>
 
-## Average US beverage price per year
+Finally, we multiply the monthly beverage earnings by twelve months to get the earnings per year, assuming all stock is sold before the end of the year:
 
-From the webscraped in2013dollars.com dataset, we extract the average coffee and tea price from the year 2024. We then extract the sum of all weights per monthly restock for items in each category and multiply this by both twelve months and to get the total supply price per year for all items of that category. Thus, we have:
+Local beverage earnings per year: <b>$35,249.76</b>
 
-National average price per pound: <b>$28.48</b>
+## Average U.S. beverage price per year
+
+For these calculations, assume that the national average is for each pound-unit of any beverage ingredient sold in any U.S. city. From the webscraped in2013dollars.com dataset, we extract the average beverage price from the year 2024 to get:
+
+National average price per pound (2024): <b>$28.48</b>
+
+Multiplying this by the total beverage weight and by twelve months, we obtain the expenses per year if we buy all our beverage ingredients at national average price:
+
+Total expenses based on average ingredient price: <b>$56,048.64</b>
+
+The price at which our goods are sold is thus, on average, below the average price of all beverages in all U.S. cities. However, this would also mean that if we were to buy our inventory at the average national price as per the current rate, we would be at a deficit because even the lowest average beverage price within the last two decades, at $19.26 in 2002, is still over a dollar above our average beverage price.
 
 # Future recommendations
 
+As noted above, on average we sell our beverages at a price below the national average, which has the benefit of attracting customers who would be more interested in saving money by purchasing from a seller whose price offerings are lower, but assuming that we buy inventory strictly at the national average rate, and assuming that rate is per pound of beverage ingredient, we will be facing a deficit of <b>$20,798.88</b> per year (based on the national average in 2024). However, prices for individual beverage ingredients vary in the same way as those of our goods do depending on the type of beverage being purchased. To better match expenses to earnings and potentially turn a profit, we would need to find a choice or selection of vendors for each drink type that offer ingredients at the lowest price possible while still maintaining sufficient ingredient quality (since a higher-quality product will also be good for sales).
 
+The other recommendation for profit increase, assuming lower-price vendors are unavailable and/or quality cannot be sacrificed, would be to offer our goods at higher prices, bringing the average earning price per pound of ingredient closer to the national average. This is more risky if the lower prices are the primary reason for customers wanting to buy from us in the first place, but if we can find higher-quality vendors for ingredients to improve the goods themselves, then the price increase may be worth the additional investment due to better public standing improving business as much as lower prices. However, selecting higher-quality vendors may also run the risk of the expenses being increased in turn due to having to spend more to afford the ingredients they have on offer.
+
+As such, the recommendations are largely dependent on whether or not we can find vendors that offer the same quality of product at a lower cost to us:
+
+- If vendors that sell ingredients of an acceptable quality at lower prices exist, change the vendors to the option that reduces expenses, and potentially increase the restock threshold to offer more of the product to customers.
+
+- If there are no vendors that can provide ingredients below the national average, instead raise the prices of the goods we sell, but also look for vendors that provide higher-quality versions of these items. In this way, we can make a trade-off between attracting customers with our current lower prices and bolstering our PR among the consumer base with higher-quality purchases.
+
+(c) Adrian Tan, 2025
 
