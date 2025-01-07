@@ -82,11 +82,13 @@ categories = inventory_df['category'].unique()
 keys = ['Category','Number of Products','Total Price','Total Quantity','Price Per Pound']
 inventory_categories_dict= dict(zip(keys, ([] for _ in keys)))
 for category in categories:
+    category_total_price = inventory_df[inventory_df['category']==str(category)]['our_price'].sum()
+    category_total_pounds = inventory_df[inventory_df['category']==str(category)]['weight_per_restock'].sum()
     inventory_categories_dict['Category'].append(category)
     inventory_categories_dict['Number of Products'].append(inventory_df['category'].value_counts().get(str(category), 0))
-    inventory_categories_dict['Total Price'].append(inventory_df['category'].value_counts().get(str(category), 0))
-    inventory_categories_dict['Total Quantity'].append(inventory_df['category'].value_counts().get(str(category), 0))
-    inventory_categories_dict['Price Per Pound'].append(inventory_df['category'].value_counts().get(str(category), 0))
+    inventory_categories_dict['Total Price'].append(category_total_price)
+    inventory_categories_dict['Total Quantity'].append(category_total_pounds)
+    inventory_categories_dict['Price Per Pound'].append(category_total_price/category_total_pounds)
 
 inventory_categories_df = pd.DataFrame({ key:pd.Series(value) for key, value in inventory_categories_dict.items() })
 
@@ -194,10 +196,10 @@ with open('report.md', 'a+') as f:
         f.write(f"| {row['product_name']} | {'${:,.2f}'.format(row['our_price'])} | {row['category']} | {row['current_stock']} | {row['restock_threshold']} | {row['restock_date']} | {'${:,.2f}'.format(row['price_per_restock'])} | {row['weight_per_restock']} |\n")
     f.write("\n")
     f.write('The different categories of beverage and the number of products sold under each are as follows:\n\n')
-    f.write("| Category | Number of Products |\n")
-    f.write("| ----------: | ----------: |\n")
+    f.write("| Category | Number of Products | Cumulative Price (USD) Per Pound |\n")
+    f.write("| ----------: | ----------: | ----------: |\n")
     for index, row in inventory_categories_df.iterrows():
-        f.write(f"| {row['Category']} | {row['Number of Products']} |\n")
+        f.write(f"| {row['Category']} | {row['Number of Products']} | {'${:,.2f}'.format(row['Price Per Pound'])} |\n")
     f.write("\n")
     f.write('# External data integration\n\n')
     f.write('Our external source is in2013dollars.com\'s free dataset prices of <i>beverage materials including coffee and tea</i> from 1997 to 2024. This will allow us to obtain average annually coffee price in USD per pound. We will select data for the most recent year, in this case 2024 (the most recent full year as of this study).\n\n')
